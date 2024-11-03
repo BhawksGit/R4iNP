@@ -94,6 +94,107 @@
       text-decoration: none;
       border-radius: 4px;
     }
+
+    .help-button {
+      display: inline-block;
+      padding: 15px 25px;
+      background-color: #000;
+      color: red;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    .error-content {
+      display: none;
+      margin-top: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .error-button {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .error-image {
+      max-width: 200px;
+      height: auto;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .error-text {
+      color: black;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .instruction-text {
+      color: black;
+      font-size: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .modal-list {
+      margin-top: 10px;
+    }
+
+    .modal-list li {
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 
@@ -112,7 +213,6 @@
         <li>No timebomb - no expiration date</li>
       </ul>
     </section>
-
 
     <section>
       <h2>Download</h2>
@@ -148,6 +248,24 @@
 
       <p>The microSD contents should look like this as a result:</p>
       <img src="correctSDLayout.png"></img>
+
+      <!-- Help Button -->
+      <button class="help-button" onclick="toggleErrorContent()">Help! I'm seeing a black screen with an error when I try to use the R4!</button>
+      
+      <!-- Error Content -->
+      <div class="error-content" id="errorContent">
+        <!-- Text Elements -->
+        <div class="error-text">Are you facing either of these errors?</div>
+        <div class="instruction-text">Click on the image that corresponds to the error you're facing.</div>
+        
+        <!-- Image Buttons -->
+        <button class="error-button" onclick="openModal('dsmenuErrorModal')">
+          <img src="cant_open_dsmenu.jpg" class="error-image" alt="Can't open _dsmenu.dat">
+        </button>
+        <button class="error-button" onclick="openModal('sdTfCardErrorModal')">
+          <img src="sd_tf_error.jpg" class="error-image" alt="SD/TF card error">
+        </button>
+      </div>
     </section>
 
     <section>
@@ -161,6 +279,63 @@
     <p>&copy; 2024 Hawknetics. All rights reserved. | <a href="privacy_policy.html">Privacy Policy</a> | Icons by <a href="https://icons8.com" target="_blank"
         rel="noopener noreferrer">Icons8</a></p>
   </footer>
+
+  <!-- Modal for Can't open _dsmenu.dat Error -->
+  <div id="dsmenuErrorModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('dsmenuErrorModal')">&times;</span>
+      <div class="modal-title">How to fix the "Can't open _dsmenu.dat" error:</div>
+      <ul class="modal-list">
+        <p>
+          To fix this error, ensure that the files "_DSMENU.DAT" and "_DS_MENU.DAT" along with the "_rpg" folder are in the root directory of your micro SD card, not inside any folders. Often, these files end up in a folder (like "r4_kernel") when extracting the kernel files. Move them from the folder to the main directory of the micro SD card to resolve the issue.</p>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Modal for SD/TF Card Error -->
+  <div id="sdTfCardErrorModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('sdTfCardErrorModal')">&times;</span>
+      <div class="modal-title">How to fix the "SD/TF card error" error:</div>
+      <ul class="modal-list">
+        <p>
+          To fix the "SD/TF card error," reformat the micro SD card to FAT32 using a full format (not Quick Format) to check for any bad sectors. For stability, use a micro SD card with a capacity of 32GB or lower and a speed rating of Class 10 or higher. After formatting, reload the kernel files directly to the root directory of the micro SD card.</p>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function toggleErrorContent() {
+      var errorContent = document.getElementById('errorContent');
+      if (errorContent.style.display === 'none' || errorContent.style.display === '') {
+        errorContent.style.display = 'flex';
+      } else {
+        errorContent.style.display = 'none';
+      }
+    }
+
+    function openModal(modalId) {
+      var modal = document.getElementById(modalId);
+      modal.style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+      var modal = document.getElementById(modalId);
+      modal.style.display = 'none';
+    }
+
+    // Close the modal when clicking anywhere outside of it
+    window.onclick = function(event) {
+      var dsmenuModal = document.getElementById('dsmenuErrorModal');
+      var sdTfCardModal = document.getElementById('sdTfCardErrorModal');
+      if (event.target == dsmenuModal) {
+        dsmenuModal.style.display = 'none';
+      }
+      if (event.target == sdTfCardModal) {
+        sdTfCardModal.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 
 </html>
