@@ -1,4 +1,4 @@
 # R4iNP
-Website used to host the R4iNP kernel for the Nintendo DS, and to provide kernel and usage information and support
+A website dedicated to hosting the R4iNP kernel for Nintendo DS devices. It offers access to the kernel along with comprehensive usage information and support resources.
 
-R4iNP is the kernel for an R4 card sold on eBay and Amazon by Brandon Hawkins DBA HawkinsTechParts
+R4iNP serves as the kernel for an R4 card sold by Hawknetics on platforms like eBay and Amazon.
