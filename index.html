@@ -7,10 +7,19 @@
   <link rel="icon" type="image/x-icon" href="r4_logo.png">
   <title>R4xMP (formerly R4iNP) - Nintendo R4 Card Firmware</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
     }
 
     header {
@@ -55,6 +64,7 @@
       color: white;
       text-decoration: none;
       border-radius: 4px;
+      overflow-wrap: anywhere;
     }
 
     .download-button img {
@@ -82,7 +92,7 @@
     }
 
     .step-image {
-      max-width: 400px;
+      max-width: min(400px, 100%);
       margin-bottom: 10px;
     }
 
@@ -102,8 +112,10 @@
       color: red;
       font-weight: bold;
       text-decoration: none;
+      border: none;
       border-radius: 4px;
       margin-top: 20px;
+      cursor: pointer;
     }
 
     .error-content {
@@ -115,7 +127,38 @@
       align-items: center;
     }
 
+    /* Flashing "Wait!" attention state applied when the user tries to contact
+       before reviewing the two common fixes. */
+    .error-content.attention {
+      border: 3px solid #f44336;
+      border-radius: 8px;
+      padding: 16px 12px;
+      animation: waitPulse 0.9s ease-in-out infinite;
+    }
+
+    @keyframes waitPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+      50%      { box-shadow: 0 0 16px 5px rgba(244, 67, 54, 0.85); }
+    }
+
+    .wait-banner {
+      display: none;
+      background-color: #f44336;
+      color: #fff;
+      font-weight: bold;
+      font-size: 22px;
+      letter-spacing: 1px;
+      padding: 8px 20px;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .error-content.attention .wait-banner {
+      display: block;
+    }
+
     .error-button {
+      position: relative;
       background: none;
       border: none;
       padding: 0;
@@ -127,6 +170,27 @@
       height: auto;
       border: 2px solid #ccc;
       border-radius: 4px;
+    }
+
+    .check-badge {
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: #4CAF50;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .error-button.reviewed .check-badge {
+      display: inline-block;
+    }
+
+    .error-button.reviewed .error-image {
+      border-color: #4CAF50;
     }
 
     .error-text {
@@ -141,6 +205,21 @@
       font-size: 16px;
       text-align: center;
       margin-bottom: 20px;
+    }
+
+    .contact-gate {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .gate-note {
+      color: #b71c1c;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .contact-proceed {
+      display: none;
     }
 
     /* Modal Styles */
@@ -195,6 +274,69 @@
     .modal-list li {
       margin-bottom: 8px;
     }
+
+    .modal-list a {
+      color: #2196F3;
+      word-break: break-all;
+    }
+
+    /* Mobile-friendly adjustments */
+    @media (max-width: 600px) {
+      header {
+        padding: 16px 12px;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      main {
+        margin: 12px;
+        padding: 16px;
+      }
+
+      .download-button,
+      .contact-button,
+      .help-button,
+      .contact-proceed {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+
+      .contact-proceed {
+        display: none;
+      }
+
+      .help-button {
+        font-size: 15px;
+        padding: 14px 16px;
+        margin-top: 16px;
+      }
+
+      .error-text {
+        font-size: 20px;
+      }
+
+      .wait-banner {
+        font-size: 20px;
+      }
+
+      .step-number {
+        font-size: 18px;
+      }
+
+      .modal-content {
+        margin: 20% auto;
+        width: 92%;
+        padding: 16px;
+      }
+
+      footer {
+        padding: 16px 12px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 
@@ -247,24 +389,35 @@
       </div>
 
       <p>The microSD contents should look like this as a result:</p>
-      <img src="correctSDLayout.png"></img>
+      <img src="correctSDLayout.png" alt="Correct microSD card layout">
 
       <!-- Help Button -->
       <button class="help-button" onclick="toggleErrorContent()">Help! I'm seeing a black screen with an error when I try to use the R4!</button>
-      
+
       <!-- Error Content -->
       <div class="error-content" id="errorContent">
+        <!-- Attention banner shown when the user tries to contact first -->
+        <div class="wait-banner">&#9888;&#65039; Wait! &#9888;&#65039;</div>
+
         <!-- Text Elements -->
         <div class="error-text">Are you facing either of these errors?</div>
-        <div class="instruction-text">Click on the image that corresponds to the error you're facing.</div>
-        
+        <div class="instruction-text">Click on the image that corresponds to the error you're facing to see the fix. Please review <strong>both</strong> before contacting me &mdash; these two fixes solve most issues.</div>
+
         <!-- Image Buttons -->
-        <button class="error-button" onclick="openModal('dsmenuErrorModal')">
+        <button class="error-button" id="btn-dsmenu" onclick="openModal('dsmenuErrorModal')">
           <img src="cant_open_dsmenu.jpg" class="error-image" alt="Can't open _dsmenu.dat">
+          <span class="check-badge">Reviewed &#10003;</span>
         </button>
-        <button class="error-button" onclick="openModal('sdTfCardErrorModal')">
+        <button class="error-button" id="btn-sdtf" onclick="openModal('sdTfCardErrorModal')">
           <img src="sd_tf_error.jpg" class="error-image" alt="SD/TF card error">
+          <span class="check-badge">Reviewed &#10003;</span>
         </button>
+
+        <!-- Contact gate: revealed only after both fixes have been reviewed -->
+        <div class="contact-gate">
+          <p class="gate-note" id="gateNote">Please review both common errors above before contacting me.</p>
+          <a href="contact.html" class="contact-button contact-proceed" id="proceedContact">I've checked both &mdash; Contact Me</a>
+        </div>
       </div>
     </section>
 
@@ -272,12 +425,12 @@
       <h2>Contact</h2>
       <p>If you are an R4xMP customer who purchased from my official listings on Amazon or eBay, feel free to contact me with any questions or troubleshooting needs.</p>
       <p><strong>Note:</strong> I can only assist customers who purchased through Amazon or eBay. Please include your order ID when contacting me.</p>
-      <a href="contact.html" class="contact-button">Contact Me</a>
+      <a href="contact.html" class="contact-button" onclick="goToErrorCheck(event)">Contact Me</a>
     </section>
   </main>
 
   <footer>
-    <p>&copy; 2025 Hawknetics. All rights reserved. | <a href="privacy_policy.html">Privacy Policy</a> | Icons by <a href="https://icons8.com" target="_blank"
+    <p>&copy; 2026 Hawknetics. All rights reserved. | <a href="privacy_policy.html">Privacy Policy</a> | Icons by <a href="https://icons8.com" target="_blank"
         rel="noopener noreferrer">Icons8</a></p>
   </footer>
 
@@ -300,12 +453,16 @@
       <div class="modal-title">How to fix the "SD/TF card error" error:</div>
       <ul class="modal-list">
         <p>
-          To fix the "SD/TF card error" error, reformat the micro SD card to FAT32 using a full format (not Quick Format) to check for any bad sectors. For stability, use a micro SD card with a capacity of 32GB or lower and a speed rating of Class 10 or higher. After formatting, reload the kernel files directly to the root directory of the micro SD card.</p>
+          The SD/TF error is likely coming from the fact that cards greater than 32 GB are not formatted to FAT32, which is what the card expects. Windows does not natively support formatting cards greater than 32 GB to FAT32, so you will need to use an external utility. It is recommended to use Rufus to do this, which you can download <a href="https://rufus.ie/en/" target="_blank" rel="noopener noreferrer">here</a>.</p>
       </ul>
     </div>
   </div>
 
   <script>
+    // Tracks whether the user has opened each fix so we can gate the Contact button.
+    var reviewedModals = { dsmenuErrorModal: false, sdTfCardErrorModal: false };
+    var modalToButton = { dsmenuErrorModal: 'btn-dsmenu', sdTfCardErrorModal: 'btn-sdtf' };
+
     function toggleErrorContent() {
       var errorContent = document.getElementById('errorContent');
       if (errorContent.style.display === 'none' || errorContent.style.display === '') {
@@ -315,14 +472,50 @@
       }
     }
 
+    // Called by the "Contact Me" button. Instead of jumping straight to the
+    // contact page, send the user up to the common-errors checker and flash a
+    // "Wait!" contour so they review the two fixes first.
+    function goToErrorCheck(event) {
+      if (event) event.preventDefault();
+      var errorContent = document.getElementById('errorContent');
+      errorContent.style.display = 'flex';
+      if (!allReviewed()) {
+        errorContent.classList.add('attention');
+      }
+      errorContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return false;
+    }
+
     function openModal(modalId) {
       var modal = document.getElementById(modalId);
       modal.style.display = 'block';
+      if (modalToButton.hasOwnProperty(modalId) && !reviewedModals[modalId]) {
+        reviewedModals[modalId] = true;
+        var btn = document.getElementById(modalToButton[modalId]);
+        if (btn) { btn.classList.add('reviewed'); }
+        updateGate();
+      }
     }
 
     function closeModal(modalId) {
       var modal = document.getElementById(modalId);
       modal.style.display = 'none';
+    }
+
+    function allReviewed() {
+      return reviewedModals.dsmenuErrorModal && reviewedModals.sdTfCardErrorModal;
+    }
+
+    // Once both fixes have been reviewed, stop the flashing and reveal the
+    // real Contact link.
+    function updateGate() {
+      if (!allReviewed()) { return; }
+      var note = document.getElementById('gateNote');
+      var proceed = document.getElementById('proceedContact');
+      var errorContent = document.getElementById('errorContent');
+      if (note) { note.textContent = "Thanks for reviewing both common fixes. If you're still stuck, you can contact me now."; }
+      if (proceed) { proceed.style.display = 'inline-block'; }
+      if (errorContent) { errorContent.classList.remove('attention'); }
     }
 
     // Close the modal when clicking anywhere outside of it
